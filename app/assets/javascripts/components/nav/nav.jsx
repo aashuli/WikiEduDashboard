@@ -4,6 +4,7 @@ import Confetti from 'react-confetti';
 import CustomLink from './CustomLink.jsx';
 import HamburgerMenu from './hamburger_menu.jsx';
 import LanguagePicker from './language_picker.jsx';
+import fetch from 'cross-fetch';
 
 const Nav = createReactClass({
   displayName: 'Nav',
@@ -53,6 +54,9 @@ const Nav = createReactClass({
   },
 
   componentDidMount() {
+    fetch('/requested_accounts.json')
+      .then(res => res.json())
+      .then(({ requested_accounts }) => this.setState({ requested_accounts }));
     window.addEventListener('resize', this.updateDimensions);
   },
   componentWillUnmount() {
@@ -72,6 +76,7 @@ const Nav = createReactClass({
     let navClass;
     let myDashboard;
     let forAdmin;
+    let notifications;
     let help;
     let Sandbox;
     let wikiEd;
@@ -134,6 +139,14 @@ const Nav = createReactClass({
       forAdmin = (
         <li>
           <CustomLink to="/admin" name="Admin" />
+        </li>
+      );
+      notifications = (
+        <li>
+          <CustomLink to="/requested_accounts" name="Notifications" />
+          <span className="notifications">
+            { this.state.requested_accounts && <span className="bubble red" /> }
+          </span>
         </li>
       );
     }
@@ -206,6 +219,7 @@ const Nav = createReactClass({
                 </li>
                 {myDashboard}
                 {forAdmin}
+                {notifications}
                 <li>
                   <CustomLink to={this.state.trainingUrl} name={I18n.t('application.training')} clickedElement="training" />
                 </li>

@@ -48,6 +48,10 @@ class RequestedAccountsController < ApplicationController
 
     has_requested_accounts = ->(course) { course.requested_accounts.present? }
     @courses = Course.current_and_future.select(&has_requested_accounts)
+    respond_to do |format|
+      format.html { render }
+      format.json { render json: { requested_accounts: true } }
+    end
   end
 
   # List of requested accounts for a course.
