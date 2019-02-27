@@ -36,18 +36,21 @@ nav.top-nav
     justify-content space-around
 
   .notifications
-    height 0
-    position relative
-    text-align right
-    right -10px
-    top -20px
+    a
+      display inline-block
+      opacity 0.6
+      width 35px
+      &:hover
+        border none
     .bubble
       display inline-block
-      padding 3px
-      height 3px
-      width 3px
+      position relative
+      padding 4px
+      height 4px
+      width 4px
       border-radius 50%
-      text-align center
+      top -20px
+      left -10px
       &.red
         background warning
         &:after
@@ -114,6 +117,7 @@ nav.top-nav
 
   span
     display inherit
+    align-items center
 
 .top-nav__main-links
   display flex

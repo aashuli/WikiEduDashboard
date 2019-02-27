@@ -92,11 +92,30 @@ const Nav = createReactClass({
       );
     }
     if (this.state.userSignedIn) {
+      if (this.state.ifAdmin && this.state.wikiEd) {
+        notifications = (
+          <li aria-describedby="notification-message" className="notifications">
+            <a href="/requested_accounts" className="icon icon-notifications_bell"/>
+            {
+              this.state.requested_accounts
+                ? (
+                  <span className="bubble red">
+                    <span id="notification-message" className="screen-reader">You have new notifications.</span>
+                  </span>
+                )
+                : (
+                  <span id="notification-message" className="screen-reader">You have no new notifications.</span>
+                )
+            }
+          </li>
+        );
+      }
       loginLinks = (
         <span>
           <li>
             <b><a href={`/users/${this.state.currentUser}`} className="current-user">{this.state.currentUser}</a></b>
           </li>
+          { notifications }
           <li>
             <a href={this.state.destroyUrl} className="current-user">{I18n.t('application.log_out')}</a>
           </li>
@@ -140,24 +159,6 @@ const Nav = createReactClass({
       forAdmin = (
         <li>
           <CustomLink to="/admin" name="Admin" />
-        </li>
-      );
-      notifications = (
-        <li aria-describedby="notification-message">
-          <CustomLink to="/requested_accounts" name="Notifications" />
-          <span className="notifications">
-            {
-              this.state.requested_accounts
-              ? (
-                <span className="bubble red">
-                  <span id="notification-message" className="screen-reader">You have new notifications.</span>
-                </span>
-              )
-              : (
-                <span id="notification-message" className="screen-reader">You have no new notifications.</span>
-              )
-            }
-          </span>
         </li>
       );
     }
@@ -230,7 +231,6 @@ const Nav = createReactClass({
                 </li>
                 {myDashboard}
                 {forAdmin}
-                {notifications}
                 <li>
                   <CustomLink to={this.state.trainingUrl} name={I18n.t('application.training')} clickedElement="training" />
                 </li>
