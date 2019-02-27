@@ -45,11 +45,11 @@ class RequestedAccountsController < ApplicationController
 
   # List of requested accounts for a user's courses. @courses set in before action
   def index
-    return redirect_to root_path unless user_signed_in? && current_user.admin?
+    raise_unauthorized_exception unless user_signed_in? && current_user.admin?
 
     respond_to do |format|
       format.html { render }
-      format.json { render json: { requested_accounts: true } }
+      format.json { render json: { requested_accounts: @courses.present? } }
     end
   end
 
