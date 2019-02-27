@@ -4,6 +4,7 @@
 class RequestedAccountsController < ApplicationController
   respond_to :html
   before_action :set_course, except: [:index]
+  before_action :set_courses_with_requested_accounts, only: [:index, :create_all_accounts]
   before_action :check_creation_permissions,
                 only: %i[show create_accounts enable_account_requests destroy]
 
@@ -42,12 +43,10 @@ class RequestedAccountsController < ApplicationController
     @course.save
   end
 
-  # List of requested accounts for a user's courses.
+  # List of requested accounts for a user's courses. @courses set in before action
   def index
-    redirect_to root_path unless user_signed_in? && current_user.admin?
+    return redirect_to root_path unless user_signed_in? && current_user.admin?
 
-    has_requested_accounts = ->(course) { course.requested_accounts.present? }
-    @courses = Course.current_and_future.select(&has_requested_accounts)
     respond_to do |format|
       format.html { render }
       format.json { render json: { requested_accounts: true } }
@@ -75,6 +74,11 @@ class RequestedAccountsController < ApplicationController
   end
 
   private
+
+  def set_courses_with_requested_accounts
+    has_requested_accounts = ->(course) { course.requested_accounts.present? }
+    @courses = Course.current_and_future.select(&has_requested_accounts)
+  end
 
   def create_account(requested_account)
     creation_attempt = CreateRequestedAccount.new(requested_account, current_user)
