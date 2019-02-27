@@ -3,7 +3,7 @@
 #= Controller for requesting new wiki accounts and processing those requests
 class RequestedAccountsController < ApplicationController
   respond_to :html
-  before_action :set_course, except: [:index]
+  before_action :set_course, except: [:index, :create_all_accounts]
   before_action :set_courses_with_requested_accounts, only: [:index, :create_all_accounts]
   before_action :check_creation_permissions,
                 only: %i[show create_accounts enable_account_requests destroy]
@@ -73,6 +73,16 @@ class RequestedAccountsController < ApplicationController
     end
   end
 
+  def create_all_accounts
+    raise_unauthorized_exception unless user_signed_in? && current_user.admin?
+    requested_accounts = @courses.map(&:requested_accounts).flatten
+    @results = requested_accounts.inject([]) do |results, account|
+      results << create_account(account)
+    end
+
+    render :index
+  end
+
   private
 
   def set_courses_with_requested_accounts
@@ -86,7 +96,9 @@ class RequestedAccountsController < ApplicationController
     return result unless result[:success]
     # If it was successful, enroll the user in the course
     user = creation_attempt.user
-    JoinCourse.new(course: @course, user: user, role: CoursesUsers::Roles::STUDENT_ROLE)
+    JoinCourse.new(course: requested_account.course,
+                   user: user,
+                   role: CoursesUsers::Roles::STUDENT_ROLE)
     result
   end
 

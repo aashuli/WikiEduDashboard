@@ -134,6 +134,29 @@ describe RequestedAccountsController, type: :request do
       end
     end
 
+    describe '#create_all_accounts' do
+      before do
+        RequestedAccount.create(course_id: course.id, username: username, email: email)
+      end
+
+      it 'does not create the accounts if user is not authorized' do
+        allow_any_instance_of(ApplicationController).to receive(:current_user).and_return(user)
+        post '/requested_accounts'
+        expect(response.status).to eq(401)
+        expect(course.flags[:register_accounts]).to be(nil)
+        expect(RequestedAccount.count).to eq(1)
+      end
+
+      it 'creates the accounts if user is authorized' do
+        stub_account_creation
+        allow_any_instance_of(ApplicationController).to receive(:current_user).and_return(admin)
+        allow(UserImporter).to receive(:new_from_username).and_return(user)
+        post '/requested_accounts'
+        expect(response.status).to eq(200)
+        expect(RequestedAccount.count).to eq(0)
+      end
+    end
+
     describe '#enable_account_requests' do
       let(:route) { "/requested_accounts/#{course.slug}/enable_account_requests" }
 
