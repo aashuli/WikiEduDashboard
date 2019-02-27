@@ -143,10 +143,20 @@ const Nav = createReactClass({
         </li>
       );
       notifications = (
-        <li>
+        <li aria-describedby="notification-message">
           <CustomLink to="/requested_accounts" name="Notifications" />
           <span className="notifications">
-            { this.state.requested_accounts && <span className="bubble red" /> }
+            {
+              this.state.requested_accounts
+              ? (
+                <span className="bubble red">
+                  <span id="notification-message" className="screen-reader">You have new notifications.</span>
+                </span>
+              )
+              : (
+                <span id="notification-message" className="screen-reader">You have no new notifications.</span>
+              )
+            }
           </span>
         </li>
       );
