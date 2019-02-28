@@ -4,7 +4,6 @@
 class RequestedAccountsController < ApplicationController
   respond_to :html
   before_action :set_course, except: [:index, :create_all_accounts]
-  before_action :set_courses_with_requested_accounts, only: [:index, :create_all_accounts]
   before_action :check_creation_permissions,
                 only: %i[show create_accounts enable_account_requests destroy]
 
@@ -46,10 +45,12 @@ class RequestedAccountsController < ApplicationController
   # List of requested accounts for a user's courses. @courses set in before action
   def index
     raise_unauthorized_exception unless user_signed_in? && current_user.admin?
-
     respond_to do |format|
-      format.html { render }
-      format.json { render json: { requested_accounts: @courses.present? } }
+      format.html do
+        @courses = all_requested_accounts
+        render
+      end
+      format.json { render json: { requested_accounts: RequestedAccount.any? } }
     end
   end
 
@@ -75,8 +76,8 @@ class RequestedAccountsController < ApplicationController
 
   def create_all_accounts
     raise_unauthorized_exception unless user_signed_in? && current_user.admin?
-    requested_accounts = @courses.map(&:requested_accounts).flatten
-    @results = requested_accounts.inject([]) do |results, account|
+    @courses = all_requested_accounts
+    @results = RequestedAccount.all.inject([]) do |results, account|
       results << create_account(account)
     end
 
@@ -85,9 +86,8 @@ class RequestedAccountsController < ApplicationController
 
   private
 
-  def set_courses_with_requested_accounts
-    has_requested_accounts = ->(course) { course.requested_accounts.present? }
-    @courses = Course.current_and_future.select(&has_requested_accounts)
+  def all_requested_accounts
+    RequestedAccount.all.group_by { |account| account.course.title }
   end
 
   def create_account(requested_account)

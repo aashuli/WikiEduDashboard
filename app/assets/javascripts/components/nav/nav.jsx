@@ -54,10 +54,12 @@ const Nav = createReactClass({
   },
 
   componentDidMount() {
-    fetch('/requested_accounts.json')
-      .then(res => res.json())
-      .then(({ requested_accounts }) => this.setState({ requested_accounts }))
-      .catch(err => err); // If this errors, we're going to ignore it
+    if (Features.wikiEd && this.state.ifAdmin) {
+      fetch('/requested_accounts.json')
+        .then(res => res.json())
+        .then(({ requested_accounts }) => this.setState({ requested_accounts }))
+        .catch(err => err); // If this errors, we're going to ignore it
+    }
     window.addEventListener('resize', this.updateDimensions);
   },
   componentWillUnmount() {

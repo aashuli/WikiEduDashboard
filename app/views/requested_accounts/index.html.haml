@@ -10,22 +10,22 @@
   - if @courses.empty?
     %p No requested accounts
   - else
-    - @courses.each do |course|
-      %h2= course.title
+    - @courses.each do |title, requested_accounts|
+      %h2= title
       %table.table.w100
         %thead
           %th.w25 Username
           %th Email
           %th.w25 Actions
         %tbody
-          - course.requested_accounts.each do |request|
+          - requested_accounts.each do |account|
             %tr
-              %td= request.username
-              %td= request.email
+              %td= account.username
+              %td= account.email
               %td
-                %a{href: "/requested_accounts/#{course.slug}/#{request.id}/delete", 'data-method': :delete}> Delete this request
+                %a{href: "/requested_accounts/#{account.course.slug}/#{account.id}/delete", 'data-method': :delete}> Delete this request
       .container.mt2.mb2
-        %a.button{href: "/requested_accounts/#{course.slug}/create", 'data-method': :post} Create these accounts
+        %a.button{href: "/requested_accounts/#{requested_accounts.first.course.slug}/create", 'data-method': :post} Create these accounts
     %hr
     .container.mt2.mb2
       %a.button.danger{href: "/requested_accounts", 'data-method': :post} Create all accounts
