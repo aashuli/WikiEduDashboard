@@ -87,7 +87,7 @@ class RequestedAccountsController < ApplicationController
   private
 
   def all_requested_accounts
-    RequestedAccount.all.group_by { |account| account.course.title }
+    RequestedAccount.all.includes(:course).group_by { |account| account.course.title }
   end
 
   def create_account(requested_account)
